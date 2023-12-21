@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient,ASCENDING
 from bson.objectid import ObjectId 
 import string, random
 
@@ -20,7 +20,7 @@ class DriversDb:
         return self.collection.insert_one(user_dtls).inserted_id
          
     def get_user_by_phone_num(self, phone_num):
-        return self.collection.find_one({"_id": phone_num})
+        return self.collection.find_one({"phone_num": phone_num})
     
     def get_user_by_mail_addr(self, mail_addr):
         return self.collection.find_one({"mail_addr": mail_addr})
@@ -28,8 +28,8 @@ class DriversDb:
     def get_user_by_oid(self, user_id):
         return self.collection.find_one({"_id": ObjectId(user_id)})
     
-    def update_user_profile(self, user_id, dtls):
-        return self.collection.update_one({"uid":user_id},{"$set":dtls.__dict__}).modified_count>0
+    def update_user_profile(self, user_phone_num, dtls):
+        return self.collection.update_one({"phone_num":user_phone_num},{"$set":dtls.__dict__}).modified_count>0
     
     def update_user_role(self, user_id, dtls):
         return self.collection.update_one({"uid":user_id},{"$set":dtls}).modified_count>0
@@ -48,7 +48,7 @@ class DriversDb:
     
     
         
-class PassengersDb:
+class PassengersDb(DriversDb):
     def __init__(self) -> None:
         self.collection = Passengers
         
@@ -79,7 +79,21 @@ class Generate:
             length = int(5)
             characters = string.digits
             otp = ""     
-            for index in range(length):
+            for _ in range(length):
                 otp = otp + random.choice(characters)
                 
             return otp
+        
+
+class FormatResponse:
+    def driver(details):
+        return {
+            "mail_addr": details["mail_addr"],
+            "full_name": details["full_name"],
+            "phone_num": details["phone_num"],
+            "username": details["username"],
+            "addr": details["addr"],
+            "city": details["city"],
+            "state": details["state"],
+            "user_status": details["user_status"]
+        }
